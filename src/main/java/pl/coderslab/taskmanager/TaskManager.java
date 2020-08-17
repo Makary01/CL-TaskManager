@@ -1,22 +1,28 @@
 package pl.coderslab.taskmanager;
 
-import java.sql.SQLOutput;
+
+import java.lang.invoke.SwitchPoint;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class TaskManager {
 
     public static void main(String[] args) {
+
         TaskManager.run();
     }
+    private static String[][] list = new String[0][];
 
     public static void run() {
 
         showWelcomeMessage();
+        loadTaskListFromFile();
         while(true){
             showMainMenu();
             String userChoice = getUserChoice();
             if(validateUserChoice(userChoice)){
-                executeValidChoice();
-                if(isExitChoice()){
+                executeValidChoice(userChoice);
+                if(isExitChoice(userChoice)){
                     break;
                 }
             }else{
@@ -24,22 +30,52 @@ public class TaskManager {
             }
         }
         showExitMessage();
+        saveTaskListToFile();
     }
 
-    private static void executeValidChoice() {
+    private static void saveTaskListToFile() {
 
+    }
+
+    private static void loadTaskListFromFile() {
+
+    }
+
+    private static void executeValidChoice(String userChoice) {
+        switch (userChoice){
+            case"add":
+                //kod dla add
+                //
+                break;
+            case "remove":
+                //kod dla remove
+                //
+                break;
+            case "list":
+                //kod dla list
+                //
+                break;
+            case "exit":
+                //kod dla exi
+                //
+                break;
+        }
     }
 
     private static String getUserChoice() {
-        return "";
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine().trim();
     }
 
     private static boolean validateUserChoice(String userChoice) {
-        return false;
+        String[] validChoices = {"add", "list", "remove", "exit"};
+        for (String validChoice : validChoices) {
+            if(userChoice.toLowerCase().trim().equals(validChoice)) return true;
+        }return false;
     }
 
-    private static boolean isExitChoice() {
-        return false;
+    private static boolean isExitChoice(String userChoice) {
+        return "exit".equalsIgnoreCase(userChoice);
     }
 
     private static void executeInvalidChoice(String userChoice) {
@@ -50,7 +86,7 @@ public class TaskManager {
         System.out.println(ConsoleColors.BLUE + "Plz select an option: ");
         System.out.println(ConsoleColors.RESET);
         System.out.println("\tadd");
-        System.out.println("\tremoce");
+        System.out.println("\tremove");
         System.out.println("\tlist");
         System.out.println("\texit");
 
