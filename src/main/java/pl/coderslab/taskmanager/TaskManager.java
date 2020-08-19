@@ -1,9 +1,7 @@
 package pl.coderslab.taskmanager;
 
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.invoke.SwitchPoint;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,36 +43,67 @@ public class TaskManager {
     }
 
     private static void saveTaskListToFile() {
-
-    }
-
-    private static void loadTaskListFromFile() throws IOException {
+        //list=Arrays.copyOf(list, list.length-1);
+        makeSureFileExist("tasks.csv");
         Path path = Paths.get("tasks.csv");
-        if(!Files.exists(path)){
-            System.out.println("File 'task.csv' not found.");
+        StringBuilder sb = new StringBuilder();
+        for (String[] strings : list) {
+            if(strings == null) break;
+            else {
+                for (String string : strings) {
+                    sb.append(string).append(",");
+                }
+                sb.delete(sb.length() - 1, sb.length());
+                sb.append("\n");
+            }
+        }
+        try {
+            Files.writeString(path, sb);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }//zrobione
+
+    private static void makeSureFileExist(String fileName) {
+        Path path = Paths.get(fileName);
+        if (!Files.exists(path)) {
+            System.out.println("File " + fileName + " not found.");
         }
         while (!Files.exists(path)) {
-            System.out.println("Create new 'task.csv' file? Y/N");
+            System.out.println("Create new '" + fileName + "' file? Y/N");
             Scanner scanner = new Scanner(System.in);
             switch (scanner.nextLine().toLowerCase().trim()) {
                 case "y":
-                    Files.createFile(path);
+                    try {
+                        Files.createFile(path);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     System.out.println("Created new 'tasks.csv' file");
                     break;
                 case "n":
-                    System.out.println("Create 'task.csv' file and confirm by pressing enter");
+                    System.out.println("Create '" + fileName + "' file and confirm by pressing enter");
                     scanner.nextLine();
                     while (!Files.exists(path)) {
-                        System.out.println("Error, file not found.\nCreate 'task.csv' file and confirm by pressing enter");
+                        System.out.println(ConsoleColors.RED_BACKGROUND + "Error, file not found.");
+                        System.out.println(ConsoleColors.RESET);
+                        System.out.println("Create '" + fileName + "' file and confirm by pressing enter");
                         scanner.nextLine();
 
                     }
+                    break;
                 default:
-                    System.out.println("Invalid answer, try again.");
+                    System.out.println(ConsoleColors.RED_BACKGROUND + "Invalid answer, try again.");
+                    System.out.println(ConsoleColors.RESET);
             }
 
         }
+    }//zrobione
 
+    private static void loadTaskListFromFile() throws IOException {
+        makeSureFileExist("tasks.csv");
+
+        Path path = Paths.get("tasks.csv");
         try {
             Scanner scanner = new Scanner(path);
             int i = 0;
@@ -90,14 +119,13 @@ public class TaskManager {
         } catch (IOException e) {
             //
         }
-    }
+    }//zrobione
 
 
     private static void executeValidChoice(String userChoice) {
         switch (userChoice) {
             case "add":
-                //kod dla add
-                //
+                addTask();
                 break;
             case "remove":
                 //kod dla remove
@@ -114,10 +142,121 @@ public class TaskManager {
         }
     }
 
+    private static void addTask() {
+        System.out.print("Creating task nr " + (list.length + 1) + "\n Task name: ");
+        list = Arrays.copyOf(list, list.length+1);
+        Scanner scanner = new Scanner(System.in);
+        StringBuilder task = new StringBuilder();
+        task.append(scanner.nextLine().replaceAll(",", ""));
+        boolean loopBreaker = true;
+        while (loopBreaker) {
+            System.out.println("Is the task important? Y/N");
+            switch (scanner.nextLine().toLowerCase().trim()) {
+                case "y":
+                    task.append(" - Important");
+                    loopBreaker = false;
+                    break;
+                case "n":
+                    task.append(" - Not so important");
+                    loopBreaker = false;
+                    break;
+                default:
+                    invalidAnswer();
+            }
+        }
+        task.append(",");
+        System.out.println("Enter task date");
+        loopBreaker = true;
+        int yearToInt = 0;
+        while (loopBreaker) {
+            System.out.print("Year: ");
+            try {
+                String year = scanner.nextLine().trim();
+                yearToInt = Integer.parseInt(year);
+                task.append(yearToInt).append("-");
+                loopBreaker = false;
+            } catch (NumberFormatException e) {
+                invalidAnswer();
+            }
+        }
+
+        loopBreaker = true;
+        int monthToInt = 0;
+        while (loopBreaker) {
+            System.out.print("Month: ");
+            try {
+                String month = scanner.nextLine().trim();
+                monthToInt = Integer.parseInt(month);
+                if (monthToInt > 0 && monthToInt <= 9) {
+                    task.append("0").append(monthToInt).append("-");
+                    loopBreaker = false;
+                } else if (monthToInt > 9 && monthToInt <= 12) {
+                    task.append(monthToInt).append("-");
+                    loopBreaker = false;
+                } else {
+                    invalidAnswer();
+                }
+            } catch (NumberFormatException e) {
+                invalidAnswer();
+
+            }
+        }
+
+        loopBreaker = true;
+        while (loopBreaker) {
+            System.out.print("Day: ");
+            try {
+                String day = scanner.nextLine().trim();
+                int dayToInt = Integer.parseInt(day);
+                if(dayToInt > 0 && dayToInt < 10){
+                    task.append("0").append(dayToInt);
+                    loopBreaker = false;
+                } else if (dayToInt >= 10 && dayToInt <= 28) {
+                    task.append(dayToInt);
+                    loopBreaker = false;
+                } else {
+                    switch (dayToInt) {
+                        case 31:
+                            if (monthToInt == 1 || monthToInt == 3 || monthToInt == 5 || monthToInt == 7 || monthToInt == 8 || monthToInt == 10 || monthToInt == 12){
+                                task.append(day);
+                                loopBreaker = false;
+                            } else invalidAnswer();
+                            break;
+                        case 30:
+                            if (monthToInt !=2){
+                                task.append(day);
+                                loopBreaker = false;
+                            } else invalidAnswer();
+                            break;
+                        case 29:
+                            if(yearToInt%4 == 0 && yearToInt%100 != 0 || yearToInt%400 == 0){
+                                task.append(day);
+                                loopBreaker = false;
+                            }else if(monthToInt != 2){
+                                task.append(day);
+                                loopBreaker = false;
+                            }else{
+                                invalidAnswer();
+                            }
+                            break;
+                        default:
+                            invalidAnswer();
+                        break;
+                    }
+                }
+            } catch (NumberFormatException e) {
+                invalidAnswer();
+            }
+        }
+        task.append(",true");
+        list[list.length-1] = task.toString().split(",");
+
+    }
+
     private static String getUserChoice() {
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine().trim();
-    }
+    }//zrobione
 
     private static boolean validateUserChoice(String userChoice) {
         String[] validChoices = {"add", "list", "remove", "exit"};
@@ -125,15 +264,16 @@ public class TaskManager {
             if (userChoice.toLowerCase().trim().equals(validChoice)) return true;
         }
         return false;
-    }
+    }//zrobione
 
     private static boolean isExitChoice(String userChoice) {
         return "exit".equalsIgnoreCase(userChoice);
-    }
+    }//zrobione
 
     private static void executeInvalidChoice(String userChoice) {
         System.out.println(ConsoleColors.RED_BACKGROUND + "Invalid option '" + userChoice + "' plz select valid option");
-    }
+        System.out.println(ConsoleColors.RESET);
+    }//zrobione
 
     private static void showMainMenu() {
         System.out.println(ConsoleColors.BLUE + "Plz select an option: ");
@@ -143,16 +283,20 @@ public class TaskManager {
         System.out.println("\tlist");
         System.out.println("\texit");
 
-    }
+    }//zrobione
 
     private static void showExitMessage() {
         System.out.println(ConsoleColors.RED + "Goodbye, come back soon");
         System.out.println(ConsoleColors.RESET);
-    }
+    }//zrobione
 
     private static void showWelcomeMessage() {
         System.out.println(ConsoleColors.RED + "Welcome in Task Manager");
         System.out.println(ConsoleColors.RESET);
-    }
+    }//zrobione
 
+    private static void invalidAnswer() {
+        System.out.print(ConsoleColors.RED_BACKGROUND + "Invalid answer, try again.");
+        System.out.println(ConsoleColors.RESET);
+    }
 }
