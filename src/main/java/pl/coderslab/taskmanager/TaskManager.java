@@ -43,12 +43,11 @@ public class TaskManager {
     }
 
     private static void saveTaskListToFile() {
-        //list=Arrays.copyOf(list, list.length-1);
         makeSureFileExist("tasks.csv");
         Path path = Paths.get("tasks.csv");
         StringBuilder sb = new StringBuilder();
         for (String[] strings : list) {
-            if(strings == null) break;
+            if (strings == null) break;
             else {
                 for (String string : strings) {
                     sb.append(string).append(",");
@@ -132,19 +131,28 @@ public class TaskManager {
                 //
                 break;
             case "list":
-                //kod dla list
-                //
+                listOfTaskt();
                 break;
             case "exit":
-                //kod dla exi
-                //
                 break;
+        }
+    }
+
+    private static void listOfTaskt() {
+        int i = 1;
+        for (String[] strings : list) {
+            System.out.print("Task " + i);
+            for (String string : strings) {
+                System.out.print(" " + string + " ");
+            }
+            System.out.println();
+            i++;
         }
     }
 
     private static void addTask() {
         System.out.print("Creating task nr " + (list.length + 1) + "\n Task name: ");
-        list = Arrays.copyOf(list, list.length+1);
+        list = Arrays.copyOf(list, list.length + 1);
         Scanner scanner = new Scanner(System.in);
         StringBuilder task = new StringBuilder();
         task.append(scanner.nextLine().replaceAll(",", ""));
@@ -208,7 +216,7 @@ public class TaskManager {
             try {
                 String day = scanner.nextLine().trim();
                 int dayToInt = Integer.parseInt(day);
-                if(dayToInt > 0 && dayToInt < 10){
+                if (dayToInt > 0 && dayToInt < 10) {
                     task.append("0").append(dayToInt);
                     loopBreaker = false;
                 } else if (dayToInt >= 10 && dayToInt <= 28) {
@@ -217,31 +225,31 @@ public class TaskManager {
                 } else {
                     switch (dayToInt) {
                         case 31:
-                            if (monthToInt == 1 || monthToInt == 3 || monthToInt == 5 || monthToInt == 7 || monthToInt == 8 || monthToInt == 10 || monthToInt == 12){
+                            if (monthToInt == 1 || monthToInt == 3 || monthToInt == 5 || monthToInt == 7 || monthToInt == 8 || monthToInt == 10 || monthToInt == 12) {
                                 task.append(day);
                                 loopBreaker = false;
                             } else invalidAnswer();
                             break;
                         case 30:
-                            if (monthToInt !=2){
+                            if (monthToInt != 2) {
                                 task.append(day);
                                 loopBreaker = false;
                             } else invalidAnswer();
                             break;
                         case 29:
-                            if(yearToInt%4 == 0 && yearToInt%100 != 0 || yearToInt%400 == 0){
+                            if (yearToInt % 4 == 0 && yearToInt % 100 != 0 || yearToInt % 400 == 0) {
                                 task.append(day);
                                 loopBreaker = false;
-                            }else if(monthToInt != 2){
+                            } else if (monthToInt != 2) {
                                 task.append(day);
                                 loopBreaker = false;
-                            }else{
+                            } else {
                                 invalidAnswer();
                             }
                             break;
                         default:
                             invalidAnswer();
-                        break;
+                            break;
                     }
                 }
             } catch (NumberFormatException e) {
@@ -249,9 +257,9 @@ public class TaskManager {
             }
         }
         task.append(",true");
-        list[list.length-1] = task.toString().split(",");
+        list[list.length - 1] = task.toString().split(",");
 
-    }
+    }//zrobione
 
     private static String getUserChoice() {
         Scanner scanner = new Scanner(System.in);
