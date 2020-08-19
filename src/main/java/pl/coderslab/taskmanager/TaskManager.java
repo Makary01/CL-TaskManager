@@ -1,6 +1,8 @@
 package pl.coderslab.taskmanager;
 
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -127,8 +129,7 @@ public class TaskManager {
                 addTask();
                 break;
             case "remove":
-                //kod dla remove
-                //
+                removeTask();
                 break;
             case "list":
                 listOfTaskt();
@@ -136,19 +137,49 @@ public class TaskManager {
             case "exit":
                 break;
         }
-    }
+    }//zrobione
+
+    private static void removeTask() {
+        Scanner scanner = new Scanner(System.in);
+        int i = 0;
+        while (true) {
+            listOfTaskt();
+            System.out.println("Enter number of task you want to delete: ");
+            String input = scanner.nextLine();
+            try {
+                i = Integer.parseInt(input);
+                if (i > 0 && i <= list.length) {
+                    list = ArrayUtils.remove(list, i - 1);
+                    System.out.print("Deleted task number " + i);
+                    break;
+                } else {
+                    invalidAnswer();
+                }
+
+            } catch (NumberFormatException e) {
+                invalidAnswer();
+            }
+        }
+    }//zrobione
+
 
     private static void listOfTaskt() {
         int i = 1;
         for (String[] strings : list) {
             System.out.print("Task " + i);
             for (String string : strings) {
-                System.out.print(" " + string + " ");
+                if(string.trim().equals("true")){
+                    System.out.print(" Done ");
+                }else if(string.trim().equals("false")){
+                    System.out.print(" Not done yet ");
+                }else {
+                    System.out.print(" " + string + " ");
+                }
             }
             System.out.println();
             i++;
         }
-    }
+    }//zrobione
 
     private static void addTask() {
         System.out.print("Creating task nr " + (list.length + 1) + "\n Task name: ");
@@ -256,7 +287,24 @@ public class TaskManager {
                 invalidAnswer();
             }
         }
-        task.append(",true");
+        task.append(",");
+        loopBreaker = true;
+        while (loopBreaker) {
+            System.out.println("Is task done? Y/N");
+            switch (scanner.nextLine().toLowerCase().trim()) {
+                case "y":
+                    task.append("true");
+                    loopBreaker = false;
+                    break;
+                case "n":
+                    task.append("false");
+                    loopBreaker = false;
+                    break;
+                default:
+                    invalidAnswer();
+                    break;
+            }
+        }
         list[list.length - 1] = task.toString().split(",");
 
     }//zrobione
